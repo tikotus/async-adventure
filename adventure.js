@@ -33,19 +33,20 @@ async function ChooseName() {
     <p>Choose your name</p>
     <input id="name" type="text" />
     <br />
-    <button id="ok">OK</button>
+    <button id="ok">Done</button>
   `;
 
   await click("ok");
+
   const name = document.getElementById("name").value;
   // Games have lots of this "useless" stuff that doesn't affect the state, only the flow of the app.
   document.getElementById("app").innerHTML = html`
     <h1>Welcome, ${name}!</h1>
     <button id="ok">Thanks!</button>
   `;
+
   await click("ok");
 
-  console.log(name);
   return name;
 }
 
@@ -74,6 +75,7 @@ async function ChooseWeapon(name) {
     <h1>You chose ${weapon.name}</h1>
     <button id="ok">Nice!</button>
   `;
+
   await click("ok");
 
   return weapon;
@@ -89,16 +91,19 @@ async function Adventure(name, weapon) {
     let enemyKilled = false;
     while (hitPoints > 0 && !enemyKilled) {
       const enemyRoll = Math.floor(Math.random() * enemy.strength) + 1;
+
       document.getElementById("app").innerHTML = RenderEncounter(
         enemy,
         enemyRoll,
         hitPoints,
         weapon
       );
+
       const playerAction = await Promise.race([
         click("attack"),
         click("dodge"),
       ]);
+
       switch (playerAction) {
         case "attack":
           if (await Attack(enemyRoll, enemy)) {
