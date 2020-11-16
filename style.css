@@ -1,0 +1,31 @@
+#app {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 80%;
+}
+
+* {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button {
+  padding: 15px;
+  border-radius: 5px;
+  margin: 5px;
+  border-style: none;
+  background-color: rgb(60, 132, 190);
+  color: white;
+}
+
+button:hover {
+  background-color: rgb(76, 146, 204);
+}
+
+input {
+  height: 33px;
+  font-size: 19px;
+  text-align: center;
+}
