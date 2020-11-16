@@ -29,7 +29,7 @@ const config = {
 
 async function ChooseName() {
   document.getElementById("app").innerHTML = html`
-    <h1>Greetings Adventurerer</h1>
+    <h1>Greetings Adventurer</h1>
     <p>Choose your name</p>
     <input id="name" type="text" />
     <br />
