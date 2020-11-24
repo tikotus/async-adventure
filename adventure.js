@@ -20,13 +20,7 @@ const config = {
 };
 
 (async () => {
-  // App control flow can be presented with normal control flow mechanics.
   while (true) {
-    // We don't need a global state object, we can keep state locally scoped.
-    // This simplifies understanding the state and application level control flow,
-    // but removes the possibility of "random entry", the ability to jump to any
-    // valid state of the application. This would be a problem for many web pages,
-    // not so for games. Perhaps some web apps would also benefit?
     const name = await ChooseName();
     const weapon = await ChooseWeapon(name);
     const score = await Adventure(name, weapon);
@@ -49,7 +43,6 @@ async function ChooseName() {
   await click("ok");
 
   const name = document.getElementById("name").value;
-  // Games have lots of this "useless" stuff that doesn't affect the state, only the flow of the app.
   render(
     html`
       <h1>Welcome, ${name}!</h1>
@@ -90,7 +83,6 @@ async function ChooseWeapon(name) {
   const weaponIndex = parseInt(selectedWeaponButtonId.split("-")[1]);
   const weapon = config.weapons[weaponIndex];
 
-  // Some more "useless" stuff
   render(
     html`
       <h1>You chose ${weapon.name}</h1>
@@ -197,7 +189,6 @@ async function Adventure(name, weapon) {
       document.getElementById("app")
     );
 
-    // Give the player time to observe the result, then automatically continue
     await new Promise((resolve) => window.setTimeout(resolve, 1500));
 
     return success;
@@ -219,7 +210,6 @@ async function Adventure(name, weapon) {
       await new Promise((resolve) => window.setTimeout(resolve, 100));
     }
 
-    // Give the player time to observe the result, then automatically continue
     await new Promise((resolve) => window.setTimeout(resolve, 1000));
 
     return playerRoll;
