@@ -1,4 +1,11 @@
-const html = String.raw; // Replace this with lit-html later for great performance
+// Uncomment this import for fast rendering comparable to React in speed (only rendering what has changed),
+// then remove the custom html and render implementations below.
+// import { html, render } from "https://unpkg.com/lit-html?module";
+const html = String.raw;
+function render(str, node) {
+  node.innerHTML = str;
+}
+
 const config = {
   weapons: [
     { name: "Sword", attack: 6, dodge: 12 },
@@ -28,22 +35,28 @@ const config = {
 })();
 
 async function ChooseName() {
-  document.getElementById("app").innerHTML = html`
-    <h1>Greetings Adventurer</h1>
-    <p>Choose your name</p>
-    <input id="name" type="text" />
-    <br />
-    <button id="ok">Done</button>
-  `;
+  render(
+    html`
+      <h1>Greetings Adventurer</h1>
+      <p>Choose your name</p>
+      <input id="name" type="text" />
+      <br />
+      <button id="ok">Done</button>
+    `,
+    document.getElementById("app")
+  );
 
   await click("ok");
 
   const name = document.getElementById("name").value;
   // Games have lots of this "useless" stuff that doesn't affect the state, only the flow of the app.
-  document.getElementById("app").innerHTML = html`
-    <h1>Welcome, ${name}!</h1>
-    <button id="ok">Thanks!</button>
-  `;
+  render(
+    html`
+      <h1>Welcome, ${name}!</h1>
+      <button id="ok">Thanks!</button>
+    `,
+    document.getElementById("app")
+  );
 
   await click("ok");
 
@@ -51,14 +64,21 @@ async function ChooseName() {
 }
 
 async function ChooseWeapon(name) {
-  document.getElementById("app").innerHTML = html`
-    <h1>Now it's time for you ${name} to choose your weapon</h1>
-    ${config.weapons
-      .map(
-        (weapon, i) => html`<button id="weapon-${i}">${weapon.name}</button>`
-      )
-      .join("")}
-  `;
+  render(
+    html`
+      <h1>Now it's time for you ${name} to choose your weapon</h1>
+      ${config.weapons
+        .map(
+          (weapon, i) =>
+            html`<button id="weapon-${i}">
+              <h2><strong>${weapon.name}</strong></h2>
+              <p>Attack: ${weapon.attack}<br />Dodge: ${weapon.dodge}</p>
+            </button>`
+        )
+        .join("")}
+    `,
+    document.getElementById("app")
+  );
 
   // This kind of construct is quite common and can be turned into a function.
   const weaponButtons = Array.from(
@@ -71,10 +91,13 @@ async function ChooseWeapon(name) {
   const weapon = config.weapons[weaponIndex];
 
   // Some more "useless" stuff
-  document.getElementById("app").innerHTML = html`
-    <h1>You chose ${weapon.name}</h1>
-    <button id="ok">Nice!</button>
-  `;
+  render(
+    html`
+      <h1>You chose ${weapon.name}</h1>
+      <button id="ok">Nice!</button>
+    `,
+    document.getElementById("app")
+  );
 
   await click("ok");
 
@@ -92,11 +115,9 @@ async function Adventure(name, weapon) {
     while (hitPoints > 0 && !enemyKilled) {
       const enemyRoll = Math.floor(Math.random() * enemy.strength) + 1;
 
-      document.getElementById("app").innerHTML = RenderEncounter(
-        enemy,
-        enemyRoll,
-        hitPoints,
-        weapon
+      render(
+        Encounter(enemy, enemyRoll, hitPoints, weapon),
+        document.getElementById("app")
       );
 
       const playerAction = await Promise.race([
@@ -123,7 +144,7 @@ async function Adventure(name, weapon) {
 
   // Note how visualization can be completely separated from logic.
   // No input handling or anything here. Just pure view.
-  function RenderEncounter(enemy, enemyRoll, hitPoints, weapon) {
+  function Encounter(enemy, enemyRoll, hitPoints, weapon) {
     return html`
       <h1>You encounter a ${enemy.name} (${enemy.strength})</h1>
       <p>Your hitpoints: ${hitPoints}</p>
@@ -139,17 +160,22 @@ async function Adventure(name, weapon) {
     const playerRoll = await Roll(enemyRoll, weapon.attack);
     const success = playerRoll > enemyRoll;
 
-    document.getElementById("app").innerHTML = success
-      ? html` <h2>You defeat the ${enemy.name}! Score +${enemy.score}</h2> `
-      : html`
-          <h2>
-            You try to attack but the ${enemy.name} is too fast for you. You
-            lose 1 HP.
-          </h2>
-        `;
+    render(
+      success
+        ? html`
+            <h2>You defeat the ${enemy.name}! <br />Score +${enemy.score}</h2>
+          `
+        : html`
+            <h2>
+              You try to attack but the ${enemy.name} is too fast for you.
+              <br />
+              -1 HP
+            </h2>
+          `,
+      document.getElementById("app")
+    );
 
-    // Give the player time to observe the result, then automatically continue
-    await new Promise((resolve) => window.setTimeout(resolve, 1500));
+    await new Promise((resolve) => window.setTimeout(resolve, 2500));
 
     return success;
   }
@@ -158,13 +184,18 @@ async function Adventure(name, weapon) {
     const playerRoll = await Roll(enemyRoll, weapon.dodge);
     const success = playerRoll > enemyRoll;
 
-    document.getElementById("app").innerHTML = success
-      ? html` <h1>You succesfully dodge the ${enemy.name}'s attack!</h1> `
-      : html`
-          <h1>
-            You try to dodge the ${enemy.name}'s attack but fail. You lose 1 HP.
-          </h1>
-        `;
+    render(
+      success
+        ? html` <h1>You succesfully dodge the ${enemy.name}'s attack!</h1> `
+        : html`
+            <h1>
+              You try to dodge the ${enemy.name}'s attack but fail.
+              <br />
+              -1 HP
+            </h1>
+          `,
+      document.getElementById("app")
+    );
 
     // Give the player time to observe the result, then automatically continue
     await new Promise((resolve) => window.setTimeout(resolve, 1500));
@@ -178,10 +209,13 @@ async function Adventure(name, weapon) {
 
     // Animated roll
     for (let i = 0; i <= 10; ++i) {
-      document.getElementById("app").innerHTML = html`
-        <p>Enemy rolls ${enemyRoll}</p>
-        <p>You roll ${i === 10 ? playerRoll : roll()}</p>
-      `;
+      render(
+        html`
+          <p>Enemy rolls ${enemyRoll}</p>
+          <p>You roll ${i === 10 ? playerRoll : roll()}</p>
+        `,
+        document.getElementById("app")
+      );
       await new Promise((resolve) => window.setTimeout(resolve, 100));
     }
 
@@ -193,11 +227,14 @@ async function Adventure(name, weapon) {
 }
 
 async function GameOver(name, score) {
-  document.getElementById("app").innerHTML = html`
-    <h1>You die! Farewell ${name}...</h1>
-    <p>Your final score is: ${score}</p>
-    <button id="retry">Retry?</button>
-  `;
+  render(
+    html`
+      <h1>You die! Farewell ${name}...</h1>
+      <p>Your final score is: ${score}</p>
+      <button id="retry">Retry?</button>
+    `,
+    document.getElementById("app")
+  );
 
   await click("retry");
 }
